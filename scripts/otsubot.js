@@ -55,11 +55,11 @@ module.exports = function (robot) {
             var start;
             var end;
 
-            if (dateString !== undefined && startString === undefined && endString === undefined) {
+            if (dateString && !startString && !endString) {
                 throw (new Error('第1引数があるのに、第2、第3引数が無いよ。'));
                 return;
             }
-            if (dateString === undefined && startString === undefined && endString === undefined) {
+            if (!dateString && !startString && !endString) {
                 if (/hi/.test(command)) {
                     start = getTimeNow();
                 } else if (/bye/.test(command)) {
