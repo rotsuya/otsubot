@@ -69,91 +69,18 @@ module.exports = function (robot) {
                 return;
             }
 
-            function getToday() {
-                var date = new Date();
-                date.setHours(0);
-                date.setMinutes(0);
-                date.setSeconds(0);
-                date.setMilliseconds(0);
-                return date;
-            }
-
-            function getTimeNow() {
-                var time = new Date();
-                time.setFullYear(1970);
-                time.setMonth(0);
-                time.setDate(1);
-                return time;
-            }
-
             if (dateString !== undefined) {
                 date = getDateFromString(dateString);
             }
-
             if (startString !== undefined) {
                 start = getTimeFromString(startString);
             }
-
             if (endString !== undefined) {
                 end = getTimeFromString(endString);
             }
 
-            function getDateFromString(string) {
-                var date = getToday();
-                var year = date.getFullYear();
-                var month = date.getMonth();
-                var day = date.getDate();
-
-                if (/\//.test(string)) {
-                    var ymd = /^(?:(\d{2}|\d{4})\/)?(?:(\d{1,2})\/)(?:(\d{1,2})$)/.exec(string);
-                } else {
-                    var ymd = /^(\d{2}|\d{4})?(\d{1,2})(\d{2})$/.exec(string);
-                }
-                if (ymd === null) {
-                    throw (new Error('日付がパースできないよ。'));
-                    return;
-                }
-
-                return (new Date((ymd[1] - 0) || year, (ymd[2] - 1) || month, (ymd[3] - 0) || day));
-            }
-
-            function getTimeFromString(string) {
-                if (/:/.test(string)) {
-                    var hm = /^(\d{1,2}):(\d{1,2})$/.exec(string);
-                } else if (string.length === 3 || string.length === 4) {
-                    var hm = /^(\d{1,2})(\d{2})$/.exec(string);
-                } else {
-                    var hm = /^(\d{1,2})$/.exec(string);
-                }
-                if (hm === null) {
-                    throw (new Error('時刻がパースできないよ。'));
-                    return;
-                }
-                var time = new Date(1970, 0, 1, (hm[1] - 0) || 0, (hm[2] - 0) || 0);
-                if (time.getTime() < (new Date(1970, 0, 1)) || time.getTime() >= (new Date(1970, 0, 2).getTime())) {
-                    throw (new Error('時刻がおかしいよ。'));
-                    return;
-                }
-                return time;
-            }
-
             save(user, date, start, end);
 
-            function save(user, date, start, end) {
-                if (/hi/.test(command)) {
-                    var response = msg.random(RESPONSE_TO_HI);
-                } else if (/bye/.test(command)) {
-                    var response = msg.random(RESPONSE_TO_BYE);
-                }
-                robot.brain.set('foo', {'bar': 1});
-                var key = [user, getStringFromDate(date, '/')];
-                var value = [getStringFromTime(start, ':'), getStringFromTime(end, ':')];
-                msg.send(response);
-                msg.send(key);
-                msg.send(value);
-                robot.brain.set(JSON.stringify(key), value);
-                robot.brain.save();
-            };
         } catch (e) {
             msg.send(e.message);
         }
@@ -178,4 +105,81 @@ module.exports = function (robot) {
         return (Array(length).join('0') + number).slice(-length);
     }
 
+    function save(user, date, start, end) {
+        if (/hi/.test(command)) {
+            var response = msg.random(RESPONSE_TO_HI);
+        } else if (/bye/.test(command)) {
+            var response = msg.random(RESPONSE_TO_BYE);
+        }
+        robot.brain.set('foo', {'bar': 1});
+        var key = [user, getStringFromDate(date, '/')];
+        var value = robot.brain.get(JSON.stringify(key)) || [];
+        if (start) {
+            value[0] = getStringFromTime(start, ':');
+        }
+        if (end) {
+            value[1] = getStringFromTime(end, ':');
+        }
+        msg.send(response);
+        msg.send(key);
+        msg.send(value);
+        robot.brain.set(JSON.stringify(key), value);
+        robot.brain.save();
+    };
+
+    function getTimeFromString(date, string) {
+        var year = date.getFullYear();
+        var month = date.getMonth();
+        var day = date.getDate();
+        if (/:/.test(string)) {
+            var hm = /^(\d{1,2}):(\d{1,2})$/.exec(string);
+        } else if (string.length === 3 || string.length === 4) {
+            var hm = /^(\d{1,2})(\d{2})$/.exec(string);
+        } else {
+            var hm = /^(\d{1,2})$/.exec(string);
+        }
+        if (!hm) {
+            throw (new Error('時刻がパースできないよ。'));
+            return;
+        }
+        var time = new Date(year, month, day, (hm[1] - 0) || 0, (hm[2] - 0) || 0);
+        if (time.getTime() < (new Date(year, month, day)) || time.getTime() >= (new Date(year, month, day + 1).getTime())) {
+            throw (new Error('時刻がおかしいよ。'));
+            return;
+        }
+        return time;
+    }
+
+    function getDateFromString(string) {
+        var date = getToday();
+        var year = date.getFullYear();
+        var month = date.getMonth();
+        var day = date.getDate();
+
+        if (/\//.test(string)) {
+            var ymd = /^(?:(\d{2}|\d{4})\/)?(?:(\d{1,2})\/)(?:(\d{1,2})$)/.exec(string);
+        } else {
+            var ymd = /^(\d{2}|\d{4})?(\d{1,2})(\d{2})$/.exec(string);
+        }
+        if (!ymd) {
+            throw (new Error('日付がパースできないよ。'));
+            return;
+        }
+
+        return (new Date((ymd[1] - 0) || year, (ymd[2] - 1) || month, (ymd[3] - 0) || day));
+    }
+
+    function getToday() {
+        var date = new Date();
+        date.setHours(0);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+        return date;
+    }
+
+    function getTimeNow() {
+        var time = new Date();
+        return time;
+    }
 };
