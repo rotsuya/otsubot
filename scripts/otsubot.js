@@ -73,10 +73,10 @@ module.exports = function (robot) {
                 date = getDateFromString(dateString);
             }
             if (startString !== undefined) {
-                start = getTimeFromString(startString);
+                start = getTimeFromString(date, startString);
             }
             if (endString !== undefined) {
-                end = getTimeFromString(endString);
+                end = getTimeFromString(date, endString);
             }
 
             save(user, date, start, end);
