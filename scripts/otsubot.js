@@ -33,6 +33,13 @@ module.exports = function (robot) {
         , 'なに言ってんの。', 'なに言ってんの。', 'なに言ってんの。', 'なに言ってんの。'
         , 'なに言ってんの。', 'なに言ってんの。'];
 
+    robot.hear(/^list(?: (?:(\d{2}|\d{4})\/?)?(\d{1,2}))?$/i, listCommand);
+
+    robot.hear(/^(?:hi|hello|おはようございます) ?(?:([\d/]+) )?(?:([\d:]+)-?)?(?:-([\d:]+))?$/i, hiByeCommand('hi'));
+
+    robot.hear(/^(?:bye|お疲れ様でした|お疲れさまでした) ?(?:([\d/]+) )?(?:([\d:]+)-)?(?:-?([\d:]+))?$/i, hiByeCommand('bye'));
+
+    function listCommand(msg) {
         try {
             var date = getToday();
             if (msg.match[1]) {
@@ -69,50 +76,62 @@ module.exports = function (robot) {
         } catch (e) {
             msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
         }
-    });
+    }
 
-    robot.hear(/^(hi|bye) ?(?:([\d/]+) )?(?:([\d:]+)-)?(?:-?([\d:]+))?$/i, function (msg) {
-        try {
-            var command = msg.match[1];
-            var dateString = msg.match[2];
-            var startString = msg.match[3];
-            var endString = msg.match[4];
-            var user = msg.message.user. name;
+    function hiByeCommand(command) {
+        return function(msg) {
+            try {
+                var dateInput = msg.match[1];
+                var startInput = msg.match[2];
+                var endInput = msg.match[3];
+                var user = msg.message.user. name;
 
-            var date = getToday();
-            var start;
-            var end;
+                var date = getToday();
+                var start;
+                var end;
 
-            if (dateString && !startString && !endString) {
-                throw (new Error('第1引数があるのに、第2、第3引数が無いよ。'));
-                return;
-            }
-            if (!dateString && !startString && !endString) {
-                if (/hi/.test(command)) {
-                    start = getTimeNow();
-                } else if (/bye/.test(command)) {
-                    end = getTimeNow();
+                if (dateInput && !startInput && !endInput) {
+                    throw (new Error('第1引数があるのに、第2、第3引数が無いよ。'));
+                    return;
                 }
-                save(user, date, start, end);
-                return;
-            }
 
-            if (dateString !== undefined) {
-                date = getDateFromString(dateString);
-            }
-            if (startString !== undefined) {
-                start = getTimeFromString(date, startString);
+                if (!dateInput && !startInput && !endInput) {
+                    if (/hi/.test(command)) {
+                        start = getTimeNow();
+                    } else if (/bye/.test(command)) {
+                        end = getTimeNow();
+                    }
+                } else {
+                    if (dateInput) {
+                        date = getDateFromString(dateInput);
+                    }
+
+                    if (startInput) {
+                        start = getTimeFromString(date, startInput);
+                    }
+
+                    if (endInput) {
+                        end = getTimeFromString(date, endInput);
+                    }
+                }
+
+                if (date) {
+                    var dateOutput = getStringFromDate(date, '/');
+                }
+                if (start) {
+                    var startOutput = getStringFromTime(start, ':');
+                }
+                if (end) {
+                    var endOutput = getStringFromTime(end, ':');
+                }
+
+                save(user, dateOutput, startOutput, endOutput);
+                respond(command, user, dateOutput, startOutput, endOutput, msg);
             } catch (e) {
                 msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
             }
-            if (endString !== undefined) {
-                end = getTimeFromString(date, endString);
-            }
-
-            save(user, date, start, end);
-
-        }
-    });
+        };
+    }
 
     function getStringFromTime(time, separator) {
         var hm = [];
@@ -160,6 +179,7 @@ module.exports = function (robot) {
         var year = date.getFullYear();
         var month = date.getMonth();
         var day = date.getDate();
+
         if (/:/.test(string)) {
             var hm = /^(\d{1,2}):(\d{1,2})$/.exec(string);
         } else if (string.length === 3 || string.length === 4) {
