@@ -126,9 +126,6 @@ module.exports = function (robot) {
         if (end) {
             value[1] = getStringFromTime(end, ':');
         }
-        msg.send(response);
-        msg.send(key);
-        msg.send(value);
         robot.brain.set(JSON.stringify(key), value);
         robot.brain.save();
     };
