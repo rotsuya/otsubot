@@ -49,6 +49,23 @@ module.exports = function (robot) {
             var month = date.getMonth();
             msg.send(user + 'の' + (month + 1) + '月の勤務表やね。あったかな？' + msg.random(RESPONSE_TO_LIST));
 
+            setTimeout(function() {
+                var key;
+                var value;
+                var result = '';
+                for (var day = 1; day <= 31; day++) {
+                    date.setDate(day);
+                    if (date.getMonth() !== month) {
+                        break;
+                    }
+                    key = [user, getStringFromDate(date, '/')];
+                    value = robot.brain.get(JSON.stringify(key));
+                    if (value) {
+                        result += getStringFromDate(date, '/') + ', ' + value.join(', ') + '\n';
+                    }
+                }
+                msg.send(result ? 'date, start, end\n' + result : 'やっぱり無いわ。');
+            }, 500);
         } catch (e) {
             msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
         }
