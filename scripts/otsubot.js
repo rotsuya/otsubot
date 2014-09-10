@@ -80,6 +80,8 @@ module.exports = function (robot) {
             }
             if (startString !== undefined) {
                 start = getTimeFromString(date, startString);
+            } catch (e) {
+                msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
             }
             if (endString !== undefined) {
                 end = getTimeFromString(date, endString);
@@ -87,8 +89,6 @@ module.exports = function (robot) {
 
             save(user, date, start, end);
 
-        } catch (e) {
-            msg.send(e.message);
         }
     });
 
