@@ -174,7 +174,11 @@ module.exports = function (robot) {
             return;
         }
 
-        return (new Date((ymd[1] - 0) || year, (ymd[2] - 1) || month, (ymd[3] - 0) || day));
+        if (ymd[1] && ymd[1].length === 2) {
+            ymd[1] = '20' + ymd[1];
+        }
+
+        return (new Date((ymd[1] - 0) || year, ymd[2] ? ymd[2] - 1 : month, (ymd[3] - 0) || day));
     }
 
     function getToday() {
