@@ -112,23 +112,27 @@ module.exports = function (robot) {
     }
 
     function save(user, date, start, end) {
+        var key = [user, date];
+        var value = robot.brain.get(JSON.stringify(key)) || [];
+        if (start) {
+            value[0] = start;
+        }
+        if (end) {
+            value[1] = end;
+        }
+        robot.brain.set(JSON.stringify(key), value);
+        robot.brain.save();
+    }
+
+    function respond(command, user, date, start, end, msg) {
         if (/hi/.test(command)) {
             var response = msg.random(RESPONSE_TO_HI);
         } else if (/bye/.test(command)) {
             var response = msg.random(RESPONSE_TO_BYE);
         }
-        robot.brain.set('foo', {'bar': 1});
-        var key = [user, getStringFromDate(date, '/')];
-        var value = robot.brain.get(JSON.stringify(key)) || [];
-        if (start) {
-            value[0] = getStringFromTime(start, ':');
-        }
-        if (end) {
-            value[1] = getStringFromTime(end, ':');
-        }
-        robot.brain.set(JSON.stringify(key), value);
-        robot.brain.save();
-    };
+        response += user + 'の勤務時間は' + date + ' ' + [start, end].join('~') + 'やね。';
+        msg.send(response);
+    }
 
     function getTimeFromString(date, string) {
         var year = date.getFullYear();
