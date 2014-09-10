@@ -45,7 +45,7 @@ module.exports = function (robot) {
                 date.setMonth(msg.match[2] - 1);
             }
         } catch (e) {
-            msg.send(e.message);
+            msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
         }
     });
 
