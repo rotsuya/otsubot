@@ -44,6 +44,11 @@ module.exports = function (robot) {
             if (msg.match[2]) {
                 date.setMonth(msg.match[2] - 1);
             }
+            var user = msg.message.user.name;
+
+            var month = date.getMonth();
+            msg.send(user + 'の' + (month + 1) + '月の勤務表やね。あったかな？' + msg.random(RESPONSE_TO_LIST));
+
         } catch (e) {
             msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
         }
