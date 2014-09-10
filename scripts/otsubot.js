@@ -34,15 +34,15 @@ module.exports = function (robot) {
         , 'なに言ってんの。', 'なに言ってんの。'];
 
         try {
-            var date;
-            var key;
-            var value;
-            var user = msg.message.user. name;
-            for (var i = 1; i <= 30; i++) {
-                date = new Date(2014, 8, i);
-                key = [user, getStringFromDate(date, '/')];
-                value = robot.brain.get(JSON.stringify(key)) || [];
-                msg.send(key.join(': ') + ' ' + value.join(' ~ '));
+            var date = getToday();
+            if (msg.match[1]) {
+                if (msg.match[1].length === 2) {
+                    msg.match[1] = '20' + msg.match[1];
+                }
+                date.setFullYear(msg.match[1] - 0);
+            }
+            if (msg.match[2]) {
+                date.setMonth(msg.match[2] - 1);
             }
         } catch (e) {
             msg.send(e.message);
@@ -149,7 +149,9 @@ module.exports = function (robot) {
             return;
         }
         var time = new Date(year, month, day, (hm[1] - 0) || 0, (hm[2] - 0) || 0);
-        if (time.getTime() < (new Date(year, month, day)) || time.getTime() >= (new Date(year, month, day + 1).getTime())) {
+        var today = new Date(year, month, day);
+        var tomorrow = new Date(year, month, day + 1);
+        if (time < today || time >= tomorrow) {
             throw (new Error('時刻がおかしいよ。'));
             return;
         }
