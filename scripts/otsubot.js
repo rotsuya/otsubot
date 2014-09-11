@@ -42,6 +42,7 @@ module.exports = function (robot) {
 
     function listCommand(msg) {
         try {
+            console.log(msg);
             var user = msg.message.user.name;
             if (msg.match[1]) {
                 user = msg.match[1].replace(/^@/, '');
