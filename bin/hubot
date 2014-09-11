@@ -13,4 +13,4 @@ export HUBOT_SLACK_CHANNELMODE=whiltelist
 export HUBOT_SLACK_CHANNELS=timecard,test
 export PORT=9998
 
-exec node_modules/.bin/hubot "$@"
+exec node_modules/.bin/hubot -a slack "$@"
