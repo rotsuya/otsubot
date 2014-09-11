@@ -11,6 +11,5 @@ export HUBOT_SLACK_TEAM=webcore
 export HUBOT_SLACK_BOTNAME=Otsubot
 export HUBOT_SLACK_CHANNELMODE=whiltelist
 export HUBOT_SLACK_CHANNELS=timecard,test
-export PORT=9998
 
 exec node_modules/.bin/hubot "$@"
