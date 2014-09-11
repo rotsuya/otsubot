@@ -14,4 +14,4 @@ export HUBOT_SLACK_CHANNELS=timecard,test
 export PORT=9998
 
 #exec node_modules/.bin/hubot --adapter slack "$@"
-forever start node_modules/.bin/hubot --adapter slack -c coffee "$@"
+forever start -c coffee node_modules/.bin/hubot --adapter slack "$@"
