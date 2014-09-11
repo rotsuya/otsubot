@@ -1,22 +1,30 @@
 // Description:
-//   <description of the scripts functionality>
-//
-// Dependencies:
-//   "<module name>": "<module version>"
-//
-// Configuration:
-//   LIST_OF_ENV_VARS_TO_SET
+//   タイムカード（勤務表）コマンドです。勤務開始/終了時刻の記録と勤務表の表示ができます。
 //
 // Commands:
-//   bye [[yyyy[/]][[m]m[/][d]d]] [[h]h[:][m]m-][h]h[:][m]m]
-//   hubot <trigger> - <what the respond trigger does>
-//   <trigger> - <what the hear trigger does>
+//   hi [-u <user>] [[<date>] <from time>[-<to time>]] - 勤務開始時刻を記録します。
+//   bye [-u <user>] [[<date>] [<from time>-]<to time>] - 勤務終了時刻を記録します。
+//   list [-u <user>] [<month>] - 勤務表を表示します。
 //
+// Examples:
+//   hi - 今、会社に着いた。
+//   bye - 今、会社を出る。
+//   list - 今月の勤務表を見たい。
+//   hi 9 - 今朝は9:00に出社した。
+//   bye 1730 - 今日は17:30に退社した。
+//   hi 12/24 9-1730 - 12月24日は9:00~17:30まで勤務した。
+//   bye 12/24 9-1730 - 同上
+//   bye -u rotsuya - rotsuyaが会社を出たので代わりに記録してあげる。
+//   list 201412 - 2014年12月の勤務表を見たい。
+//   list -u rotsuya 201412 - rotsuyaの2014年12月の勤務表を見たい。
+
 // Notes:
-//   <optional notes required for the script>
+//   <date> is YYYY/MM/DD, YYYYMMDD, YY/MM/DD, YYMMDD, MM/DD, M/D or MDD
+//   <time> is HH:MM, HHMM, H:MM, HMM, HH or H
+//   <month> is YYYY/MM, YYYYMM, YY/MM, YYMM, MM or M
 //
 // Author:
-//   <github username of the original script author>
+//   rotsuya
 
 module.exports = function (robot) {
     var RESPONSE_TO_HI = ['おはようございます。', 'おはようございます。', 'おはようございます。', 'おはようございます。'
