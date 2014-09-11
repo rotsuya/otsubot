@@ -27,47 +27,48 @@
 //   rotsuya
 
 module.exports = function (robot) {
-    var RESPONSE_TO_HI = ['おはようございます。', 'おはようございます。', 'おはようございます。', 'おはようございます。'
-        , 'おはようございます。', 'おはようございます。', 'おはようございます。', 'おはようございます。'
-        , 'おはようございます。', '乙。'];
+    var RESPONSE_TO_HI = ['おはようございます。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'];
+    var RESPONSE_TO_BYE = ['お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'];
+    var RESPONSE_BEFORE_TO_LIST = ['%{user}の%{month}月の勤務表やね。'];
+    var RESPONSE_AFTER_TO_LIST = ['あったよ。\ndate, from, to\n%{list}'];
+    var RESPONSE_NONE_TO_LIST = ['なかったわ。'];
+    var RESPONSE_TO_ERROR = ['なに言ってんの。%{message}'];
 
-    var RESPONSE_TO_BYE = ['お疲れさま。', 'お疲れさま。', 'お疲れさま。', 'お疲れさま。', 'お疲れさま。'
-        , 'お疲れさま。', 'お疲れさま。', 'お疲れさま。', 'お疲れさま。', '乙。'];
+    robot.hear(/^list(?: -u ([^\s]+))?(?: (?:(\d{2}|\d{4})\/?)?(\d{1,2}))?$/i, listCommand);
 
-    var RESPONSE_TO_LIST = ['どうぞ。', 'どうぞ。', 'どうぞ。', 'どうぞ。', 'どうぞ。'
-        , 'どうぞ。', 'どうぞ。', 'どうぞ。', 'どうぞ。', '乙。'];
+    robot.hear(/^(?:hi|hello|おはようございます) ?(?:-u ([^\s]+) )?(?:([\d/]+) )?(?:([\d:]+)-?)?(?:-([\d:]+))?$/i, hiByeCommand('hi'));
 
-    var RESPONSE_TO_ERROR = ['なに言ってんの。', 'なに言ってんの。', 'なに言ってんの。', 'なに言ってんの。'
-        , 'なに言ってんの。', 'なに言ってんの。', 'なに言ってんの。', 'なに言ってんの。'
-        , 'なに言ってんの。', 'なに言ってんの。'];
-
-    robot.hear(/^list(?: (?:(\d{2}|\d{4})\/?)?(\d{1,2}))?$/i, listCommand);
-
-    robot.hear(/^(?:hi|hello|おはようございます) ?(?:([\d/]+) )?(?:([\d:]+)-?)?(?:-([\d:]+))?$/i, hiByeCommand('hi'));
-
-    robot.hear(/^(?:bye|お疲れ様でした|お疲れさまでした) ?(?:([\d/]+) )?(?:([\d:]+)-)?(?:-?([\d:]+))?$/i, hiByeCommand('bye'));
+    robot.hear(/^(?:bye|お疲れ様でした|お疲れさまでした) ?(?:-u ([^\s]+) )?(?:([\d/]+) )?(?:([\d:]+)-)?(?:-?([\d:]+))?$/i, hiByeCommand('bye'));
 
     function listCommand(msg) {
         try {
-            var date = getToday();
-            if (msg.match[1]) {
-                if (msg.match[1].length === 2) {
-                    msg.match[1] = '20' + msg.match[1];
-                }
-                date.setFullYear(msg.match[1] - 0);
-            }
-            if (msg.match[2]) {
-                date.setMonth(msg.match[2] - 1);
-            }
             var user = msg.message.user.name;
+            if (msg.match[1]) {
+                user = msg.match[1].replace(/^@/, '');
+            }
+
+            var date = getToday();
+            if (msg.match[2]) {
+                if (msg.match[2].length === 2) {
+                    msg.match[2] = '20' + msg.match[2];
+                }
+                date.setFullYear(msg.match[2] - 0);
+            }
+
+            if (msg.match[3]) {
+                date.setMonth(msg.match[3] - 1);
+            }
 
             var month = date.getMonth();
-            msg.send(user + 'の' + (month + 1) + '月の勤務表やね。あったかな？' + msg.random(RESPONSE_TO_LIST));
+            var response = msg.random(RESPONSE_BEFORE_TO_LIST);
+            response = response.replace(/%\{user\}/, user);
+            response = response.replace(/%\{month\}/, month + 1);
+            msg.send(response);
 
             setTimeout(function() {
                 var key;
                 var value;
-                var result = '';
+                var list = '';
                 for (var day = 1; day <= 31; day++) {
                     date.setDate(day);
                     if (date.getMonth() !== month) {
@@ -76,67 +77,74 @@ module.exports = function (robot) {
                     key = [user, getStringFromDate(date, '/')];
                     value = robot.brain.get(JSON.stringify(key));
                     if (value) {
-                        result += getStringFromDate(date, '/') + ', ' + value.join(', ') + '\n';
+                        list += getStringFromDate(date, '/') + ', ' + value.join(', ') + '\n';
                     }
                 }
-                msg.send(result ? 'date, start, end\n' + result : 'やっぱり無いわ。');
-            }, 500);
+                list = list.replace(/\n$/, '');
+                var response = list ? msg.random(RESPONSE_AFTER_TO_LIST) : msg.random(RESPONSE_NONE_TO_LIST);
+                response = response.replace(/%\{list\}/, list);
+                msg.send(response);
+            }, 1000);
         } catch (e) {
-            msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
+            error(e, msg);
         }
     }
 
     function hiByeCommand(command) {
         return function(msg) {
             try {
-                var dateInput = msg.match[1];
-                var startInput = msg.match[2];
-                var endInput = msg.match[3];
-                var user = msg.message.user. name;
+                var user = msg.message.user.name;
+                if (msg.match[1]) {
+                    user = msg.match[1].replace(/^@/, '');
+                }
+
+                var dateInput = msg.match[2];
+                var fromInput = msg.match[3];
+                var toInput = msg.match[4];
 
                 var date = getToday();
-                var start;
-                var end;
+                var from;
+                var to;
 
-                if (dateInput && !startInput && !endInput) {
+                if (dateInput && !fromInput && !toInput) {
                     throw (new Error('第1引数があるのに、第2、第3引数が無いよ。'));
                     return;
                 }
 
-                if (!dateInput && !startInput && !endInput) {
+                if (!dateInput && !fromInput && !toInput) {
                     if (/hi/.test(command)) {
-                        start = getTimeNow();
+                        from = getTimeNow();
                     } else if (/bye/.test(command)) {
-                        end = getTimeNow();
+                        to = getTimeNow();
                     }
                 } else {
                     if (dateInput) {
                         date = getDateFromString(dateInput);
                     }
 
-                    if (startInput) {
-                        start = getTimeFromString(date, startInput);
+                    if (fromInput) {
+                        from = getTimeFromString(date, fromInput);
                     }
 
-                    if (endInput) {
-                        end = getTimeFromString(date, endInput);
+                    if (toInput) {
+                        to = getTimeFromString(date, toInput);
                     }
                 }
 
                 if (date) {
                     var dateOutput = getStringFromDate(date, '/');
                 }
-                if (start) {
-                    var startOutput = getStringFromTime(start, ':');
+                if (from) {
+                    var fromOutput = getStringFromTime(from, ':');
                 }
-                if (end) {
-                    var endOutput = getStringFromTime(end, ':');
+                if (to) {
+                    var toOutput = getStringFromTime(to, ':');
                 }
 
-                save(user, dateOutput, startOutput, endOutput);
-                respond(command, user, dateOutput, startOutput, endOutput, msg);
+                save(user, dateOutput, fromOutput, toOutput);
+                respond(command, user, dateOutput, fromOutput, toOutput, msg);
             } catch (e) {
-                msg.send(msg.random(RESPONSE_TO_ERROR) + e.message);
+                error(e, msg);
             }
         };
     }
@@ -160,26 +168,29 @@ module.exports = function (robot) {
         return (Array(length).join('0') + number).slice(-length);
     }
 
-    function save(user, date, start, end) {
+    function save(user, date, from, to) {
         var key = [user, date];
         var value = robot.brain.get(JSON.stringify(key)) || [];
-        if (start) {
-            value[0] = start;
+        if (from) {
+            value[0] = from;
         }
-        if (end) {
-            value[1] = end;
+        if (to) {
+            value[1] = to;
         }
         robot.brain.set(JSON.stringify(key), value);
         robot.brain.save();
     }
 
-    function respond(command, user, date, start, end, msg) {
+    function respond(command, user, date, from, to, msg) {
         if (/hi/.test(command)) {
             var response = msg.random(RESPONSE_TO_HI);
         } else if (/bye/.test(command)) {
             var response = msg.random(RESPONSE_TO_BYE);
         }
-        response += user + 'の勤務時間は' + date + ' ' + [start, end].join('~') + 'やね。';
+        response = response.replace(/%\{user\}/, user);
+        response = response.replace(/%\{date\}/, date);
+        response = response.replace(/%\{from\}/, from || '');
+        response = response.replace(/%\{to\}/, to || '');
         msg.send(response);
     }
 
@@ -244,5 +255,11 @@ module.exports = function (robot) {
     function getTimeNow() {
         var time = new Date();
         return time;
+    }
+
+    function error(e, msg) {
+        var response = msg.random(RESPONSE_TO_ERROR);
+        response = response.replace(/%\{message\}/, e.message);
+        msg.send(response);
     }
 };
