@@ -206,19 +206,19 @@ module.exports = function (robot) {
         };
     }
 
-        var hm = [];
-        hm[0] = zeroPadding(time.getHours(), 2);
-        hm[1] = zeroPadding(time.getMinutes(), 2);
-        return hm.join(separator || '');
     function getTimeStringFromDate(time, separator) {
-    function getDateStringFromDate(date, separator) {
+        var hour = zeroPadding(time.getHours(), 2);
+        var minute = zeroPadding(time.getMinutes(), 2);
+        return [hour, minute].join(separator || '');
     }
 
-        var ymd = [];
-        ymd[0] = zeroPadding(date.getFullYear(), 4);
-        ymd[1] = zeroPadding(date.getMonth() + 1, 2);
-        ymd[2] = zeroPadding(date.getDate(), 2);
-        return ymd.join(separator || '');
+    function getDateStringFromDate(date, separator) {
+        var year = zeroPadding(date.getFullYear(), 4);
+        var month = zeroPadding(date.getMonth() + 1, 2);
+        var day = zeroPadding(date.getDate(), 2);
+        return [year, month, day].join(separator || '');
+    }
+
     function getTimeStringFromValue(value, separator) {
         var hour = zeroPadding(Math.floor(value / MILLISEC_PER_HOUR), 2);
         var minute = zeroPadding((value % MILLISEC_PER_HOUR) / MILLISEC_PER_MINUTE, 2);
