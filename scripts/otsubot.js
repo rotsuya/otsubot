@@ -27,18 +27,20 @@
 //   rotsuya
 
 module.exports = function (robot) {
-    var RESPONSE_TO_HI = ['おはようございます。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'];
+    var RESPONSE_TO_HI = ['おはようございます。%{user}の%{date}の勤務時間は%{from}~%{to}だね。'];
     var RESPONSE_TO_BYE = [
-        'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'
-        ,'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'
-        ,'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'
-        ,'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'
-        ,'乙。%{user}の%{date}の勤務時間は%{from}~%{to}ですね。'
+        'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}だね。'
+        ,'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}だね。'
+        ,'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}だね。'
+        ,'お疲れさま。%{user}の%{date}の勤務時間は%{from}~%{to}だね。'
+        ,'乙。%{user}の%{date}の勤務時間は%{from}~%{to}だね。'
     ];
-    var RESPONSE_BEFORE_TO_LIST = ['%{user}の%{month}月の勤務表やね。'];
-    var RESPONSE_AFTER_TO_LIST = ['あったよ。\ndate, from, to\n%{list}'];
-    var RESPONSE_NONE_TO_LIST = ['なかったわ。'];
-    var RESPONSE_TO_ERROR = ['なに言ってんの。%{message}'];
+    var RESPONSE_BEFORE_TO_LIST = ['%{user}の%{month}月の勤務表だね。'];
+    var RESPONSE_AFTER_TO_LIST = ['%{list}'];
+    var LIST_HEADER = 'date       | recorded      | calculated    | overtime';
+    var LIST_FOOTER = 'sum        |       |       |       |       | ';
+    var RESPONSE_NONE_TO_LIST = ['なかったよ。'];
+    var RESPONSE_TO_ERROR = ['エラーが起きちゃった。%{message}'];
 
     robot.hear(/^list(?: -u ([^\s]+))?(?: (?:(\d{2}|\d{4})\/?)?(\d{1,2}))?$/i, listCommand);
 
