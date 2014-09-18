@@ -170,21 +170,21 @@ module.exports = function (robot) {
 
                 if (!dateInput && !fromInput && !toInput) {
                     if (/hi/.test(command)) {
-                        from = getTimeNow();
+                        from = getNow();
                     } else if (/bye/.test(command)) {
-                        to = getTimeNow();
+                        to = getNow();
                     }
                 } else {
                     if (dateInput) {
-                        date = getDateFromString(dateInput);
+                        date = getDateFromDateString(dateInput);
                     }
 
                     if (fromInput) {
-                        from = getTimeFromString(date, fromInput);
+                        from = getDateFromTimeString(date, fromInput);
                     }
 
                     if (toInput) {
-                        to = getTimeFromString(date, toInput);
+                        to = getDateFromTimeString(date, toInput);
                     }
                 }
 
@@ -192,10 +192,10 @@ module.exports = function (robot) {
                     var dateOutput = getStringFromDate(date, '/');
                 }
                 if (from) {
-                    var fromOutput = getStringFromTime(from, ':');
+                    var fromOutput = getTimeStringFromDate(from, ':');
                 }
                 if (to) {
-                    var toOutput = getStringFromTime(to, ':');
+                    var toOutput = getTimeStringFromDate(to, ':');
                 }
 
                 save(user, dateOutput, fromOutput, toOutput);
@@ -206,14 +206,14 @@ module.exports = function (robot) {
         };
     }
 
-    function getStringFromTime(time, separator) {
         var hm = [];
         hm[0] = zeroPadding(time.getHours(), 2);
         hm[1] = zeroPadding(time.getMinutes(), 2);
         return hm.join(separator || '');
+    function getTimeStringFromDate(time, separator) {
+    function getDateStringFromDate(date, separator) {
     }
 
-    function getStringFromDate(date, separator) {
         var ymd = [];
         ymd[0] = zeroPadding(date.getFullYear(), 4);
         ymd[1] = zeroPadding(date.getMonth() + 1, 2);
@@ -255,7 +255,7 @@ module.exports = function (robot) {
         msg.send(response);
     }
 
-    function getTimeFromString(date, string) {
+    function getDateFromTimeString(date, string) {
         var year = date.getFullYear();
         var month = date.getMonth();
         var day = date.getDate();
@@ -281,7 +281,7 @@ module.exports = function (robot) {
         return time;
     }
 
-    function getDateFromString(string) {
+    function getDateFromDateString(string) {
         var date = getToday();
         var year = date.getFullYear();
         var month = date.getMonth();
@@ -313,7 +313,7 @@ module.exports = function (robot) {
         return date;
     }
 
-    function getTimeNow() {
+    function getNow() {
         var time = new Date();
         return time;
     }
