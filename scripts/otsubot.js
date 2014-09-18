@@ -49,9 +49,9 @@ module.exports = function (robot) {
 
     robot.hear(/^list(?: -u ([^\s]+))?(?: (?:(\d{2}|\d{4})\/?)?(\d{1,2}))?$/i, listCommand);
 
-    robot.hear(/^(?:hi|hello|おはようございます) ?(?:-u ([^\s]+) )?(?:([\d/]+) )?(?:([\d:]+)-?)?(?:-([\d:]+))?$/i, hiByeCommand('hi'));
+    robot.hear(/^(?:hi|hello|おはよう\S*) ?(?:-u ([^\s]+) )?(?:([\d/]+) )?(?:([\d:]+)-?)?(?:-([\d:]+))?$/i, hiByeCommand('hi'));
 
-    robot.hear(/^(?:bye|お疲れ様でした|お疲れさまでした) ?(?:-u ([^\s]+) )?(?:([\d/]+) )?(?:([\d:]+)-)?(?:-?([\d:]+))?$/i, hiByeCommand('bye'));
+    robot.hear(/^(?:bye|お疲れ\S*|乙) ?(?:-u ([^\s]+) )?(?:([\d/]+) )?(?:([\d:]+)-)?(?:-?([\d:]+))?$/i, hiByeCommand('bye'));
 
     function listCommand(msg) {
         try {
