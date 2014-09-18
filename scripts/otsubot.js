@@ -41,6 +41,11 @@ module.exports = function (robot) {
     var LIST_FOOTER = 'sum        |       |       |       |       | ';
     var RESPONSE_NONE_TO_LIST = ['なかったよ。'];
     var RESPONSE_TO_ERROR = ['エラーが起きちゃった。%{message}'];
+    var INCREMENT_MINUTES = 15;
+    var ON_TIME_FROM = '09:00';
+    var ON_TIME_TO = '17:30';
+    var MILLISEC_PER_HOUR = 60 * 60 * 1000;
+    var MILLISEC_PER_MINUTE =  60 * 1000;
 
     robot.hear(/^list(?: -u ([^\s]+))?(?: (?:(\d{2}|\d{4})\/?)?(\d{1,2}))?$/i, listCommand);
 
