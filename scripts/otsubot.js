@@ -188,9 +188,7 @@ module.exports = function (robot) {
                     }
                 }
 
-                if (date) {
-                    var dateOutput = getStringFromDate(date, '/');
-                }
+                var dateOutput = getDateStringFromDate(date, '/');
                 if (from) {
                     var fromOutput = getTimeStringFromDate(from, ':');
                 }
