@@ -75,18 +75,69 @@ module.exports = function (robot) {
                 var key;
                 var value;
                 var list = '';
+                var fromString = '';
+                var toString = '';
+                var dateString = '';
+                var from;
+                var to;
+                var fromCalc;
+                var toCalc;
+                var fromCalcString = '';
+                var toCalcString = '';
+                var overtime = 0;
+                var overtimeString = '';
+                var overtimeSum = 0;
+                var increment = INCREMENT_MINUTES * MILLISEC_PER_MINUTE;
+
                 for (var day = 1; day <= 31; day++) {
+                    fromString = '';
+                    toString = '';
+                    overtime = 0;
+
                     date.setDate(day);
                     if (date.getMonth() !== month) {
                         break;
                     }
-                    key = [user, getStringFromDate(date, '/')];
+
+                    dateString = getDateStringFromDate(date, '/');
+                    key = [user, dateString];
                     value = robot.brain.get(JSON.stringify(key));
+
                     if (value) {
-                        list += getStringFromDate(date, '/') + ', ' + value.join(', ') + '\n';
+                        fromString = value[0];
+                        toString = value[1];
+
+                        if (fromString) {
+                            from = getDateFromTimeString(date, fromString);
+                            fromCalc = new Date(Math.ceil(from.getTime() / increment) * increment);
+                            fromCalcString = getTimeStringFromDate(fromCalc, ':');
+                            overtime += Math.max(getDateFromTimeString(date, ON_TIME_FROM) - fromCalc, 0);
+                        } else {
+                            fromString = '     ';
+                            fromCalcString = '     ';
+                        }
+
+                        if (toString) {
+                            to = getDateFromTimeString(date, toString);
+                            toCalc = new Date(Math.floor(to.getTime() / increment) * increment);
+                            toCalcString = getTimeStringFromDate(toCalc, ':');
+                            overtime += Math.max(toCalc - getDateFromTimeString(date, ON_TIME_TO), 0);
+                        } else {
+                            toString = '     '
+                            toCalcString = '     ';
+                        }
+                        overtimeSum += overtime;
+                        overtimeString = getTimeStringFromValue(overtime, ':');
+
+                        list += [dateString, fromString, toString, fromCalcString, toCalcString, overtimeString].join(' | ') + '\n';
                     }
                 }
-                list = list.replace(/\n$/, '');
+
+                if (list) {
+                    list = '```' + LIST_HEADER + '\n' + list
+                        + LIST_FOOTER + getTimeStringFromValue(overtimeSum, ':') + '```';
+                }
+
                 var response = list ? msg.random(RESPONSE_AFTER_TO_LIST) : msg.random(RESPONSE_NONE_TO_LIST);
                 response = response.replace(/%\{list\}/, list);
                 msg.send(response);
@@ -168,6 +219,10 @@ module.exports = function (robot) {
         ymd[1] = zeroPadding(date.getMonth() + 1, 2);
         ymd[2] = zeroPadding(date.getDate(), 2);
         return ymd.join(separator || '');
+    function getTimeStringFromValue(value, separator) {
+        var hour = zeroPadding(Math.floor(value / MILLISEC_PER_HOUR), 2);
+        var minute = zeroPadding((value % MILLISEC_PER_HOUR) / MILLISEC_PER_MINUTE, 2);
+        return [hour, minute].join(separator || '');
     }
 
     function zeroPadding(number, length) {
