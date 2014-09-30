@@ -36,8 +36,10 @@
 * `list 201412` - 2014年12月の勤務表を見たい。
 * `list -u rotsuya 201412` - rotsuyaの2014年12月の勤務表を見たい。
 
-## Future Work
+## Usage:
 
-* listの削除機能
-* 年休対応
-* 多言語対応
+https://github.com/rotsuya/otsubot/wiki
+
+## Future Work:
+
+https://github.com/rotsuya/otsubot/issues
