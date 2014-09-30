@@ -134,7 +134,7 @@ module.exports = function (robot) {
                             toCalcString = '     ';
                         }
                         overtimeSum += overtime;
-                        overtimeString = getTimeStringFromValue(overtime, ':');
+                        overtimeString = overtime ? getTimeStringFromValue(overtime, ':') : '';
 
                         list += [dateString, fromString, toString, fromCalcString, toCalcString, overtimeString].join(' | ') + '\n';
                     }
