@@ -17,7 +17,7 @@
 //   bye -u rotsuya - rotsuyaが会社を出たので代わりに記録してあげる。
 //   list 201412 - 2014年12月の勤務表を見たい。
 //   list -u rotsuya 201412 - rotsuyaの2014年12月の勤務表を見たい。
-
+//
 // Notes:
 //   <date> is YYYY/MM/DD, YYYYMMDD, YY/MM/DD, YYMMDD, MM/DD, M/D or MDD
 //   <time> is HH:MM, HHMM, H:MM, HMM, HH or H
@@ -126,6 +126,9 @@ module.exports = function (robot) {
 
                         if (toString) {
                             to = getDateFromTimeString(date, toString);
+                            if (from > to) {
+                                to = new Date(to.getTime() + 24 * 60* 60 * 1000);
+                            }
                             toCalc = new Date(Math.floor(to.getTime() / increment) * increment);
                             toCalcString = getTimeStringFromDate(toCalc, ':');
                             overtime += Math.max(toCalc - getDateFromTimeString(date, ON_TIME_TO), 0);
