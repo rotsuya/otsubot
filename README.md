@@ -1,4 +1,4 @@
-# Otsubot
+# otsubot
 
 #### the timecard bot for Hubot and slack
 
