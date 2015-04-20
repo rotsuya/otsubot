@@ -247,7 +247,6 @@ module.exports = function (robot) {
             value[1] = to;
         }
         robot.brain.set(JSON.stringify(key), value);
-        robot.brain.save();
     }
 
     function respond(command, user, date, from, to, msg) {
