@@ -24,6 +24,10 @@
     "slack",
     "bot"
   ],
+  "scripts": {
+    "start": "bin/hubot --adapter slack",
+    "debug": "bin/hubot"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rotsuya/otsubot/issues"

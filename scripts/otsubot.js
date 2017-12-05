@@ -42,8 +42,11 @@ module.exports = function (robot) {
     var RESPONSE_NONE_TO_LIST = ['なかったよ。'];
     var RESPONSE_TO_ERROR = ['エラーが起きちゃった。%{message}'];
     var INCREMENT_MINUTES = 15;
-    var ON_TIME_FROM = '09:00';
-    var ON_TIME_TO = '17:30';
+    var CORE_TIME_FROM = '10:00';
+    var CORE_TIME_TO = '15:00';
+    var ON_TIME_HOURS = 7.5;    // 所定労働時間
+    var REST_TIME_HOURS = 1;    // 昼休みの時間
+
     var MILLISEC_PER_HOUR = 60 * 60 * 1000;
     var MILLISEC_PER_MINUTE =  60 * 1000;
 
@@ -110,6 +113,9 @@ module.exports = function (robot) {
                     key = [user, dateString];
                     value = robot.brain.get(JSON.stringify(key));
 
+                    var coreTimeFrom = getDateFromTimeString(date, CORE_TIME_FROM);
+                    var coreTimeTo = getDateFromTimeString(date, CORE_TIME_TO);
+
                     if (value) {
                         fromString = value[0];
                         toString = value[1];
@@ -118,7 +124,10 @@ module.exports = function (robot) {
                             from = getDateFromTimeString(date, fromString);
                             fromCalc = new Date(Math.ceil(from.getTime() / increment) * increment);
                             fromCalcString = getTimeStringFromDate(fromCalc, ':');
-                            overtime += Math.max(getDateFromTimeString(date, ON_TIME_FROM) - fromCalc, 0);
+                            if (value[1]) {
+                                overtime += Math.max(coreTimeFrom - fromCalc, 0);
+                                    // 10:00より早く働き始めた場合のみ加算
+                            }
                         } else {
                             fromString = '     ';
                             fromCalcString = '     ';
@@ -127,15 +136,26 @@ module.exports = function (robot) {
                         if (toString) {
                             to = getDateFromTimeString(date, toString);
                             if (from > to) {
-                                to = new Date(to.getTime() + 24 * 60* 60 * 1000);
+                                to = new Date(to.getTime() + 24 * MILLISEC_PER_HOUR);
                             }
                             toCalc = new Date(Math.floor(to.getTime() / increment) * increment);
                             toCalcString = getTimeStringFromDate(toCalc, ':');
-                            overtime += Math.max(toCalc - getDateFromTimeString(date, ON_TIME_TO), 0);
+                            if (value[0]) {
+                                overtime += Math.max(toCalc - coreTimeTo, 0);
+                                    // 15:00以降まで働いた場合のみ加算
+                            }
                         } else {
-                            toString = '     '
+                            toString = '     ';
                             toCalcString = '     ';
                         }
+
+                        if (value[0] && value[1]) {
+                            var coreTimeHours = coreTimeTo - coreTimeFrom;
+                            overtime = coreTimeHours + overtime - ON_TIME_HOURS * MILLISEC_PER_HOUR
+                                - REST_TIME_HOURS * MILLISEC_PER_HOUR;
+                                    // 残業時間 = コアタイム + コアタイム外 - 所定労働時間 - 昼休み
+                        }
+
                         overtimeSum += overtime;
                         overtimeString = overtime ? getTimeStringFromValue(overtime, ':') : '';
 
@@ -228,9 +248,11 @@ module.exports = function (robot) {
     }
 
     function getTimeStringFromValue(value, separator) {
+        var sign = Math.sign(value);
+        var value = Math.abs(value);
         var hour = zeroPadding(Math.floor(value / MILLISEC_PER_HOUR), 2);
         var minute = zeroPadding((value % MILLISEC_PER_HOUR) / MILLISEC_PER_MINUTE, 2);
-        return [hour, minute].join(separator || '');
+        return (sign === -1 ? '-' : '') + [hour, minute].join(separator || '');
     }
 
     function zeroPadding(number, length) {
