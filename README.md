@@ -10,6 +10,7 @@
 
 * `hi [-u <user>] [[<date>] <from time>[-<to time>]]` - 勤務開始時刻を記録します。
 * `bye [-u <user>] [[<date>] [<from time>-]<to time>]` - 勤務終了時刻を記録します。
+* `bye [-u <user>] <date>` - 勤務記録を削除します。
 * `list [-u <user>] [<month>]` - 勤務表を表示します。
 
 ### Formatting
@@ -35,6 +36,7 @@
 * `bye -u rotsuya` - rotsuyaが会社を出たので代わりに記録してあげる。
 * `list 201412` - 2014年12月の勤務表を見たい。
 * `list -u rotsuya 201412` - rotsuyaの2014年12月の勤務表を見たい。
+* `rm 12/24` - 間違えて登録した12月24日の記録を削除する。
 
 ## Usage:
 
