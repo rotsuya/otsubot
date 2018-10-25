@@ -310,8 +310,7 @@ module.exports = function (robot) {
 
     function remove(user, date) {
         var key = [user, date];
-        var value = robot.brain.get(JSON.stringify(key)) || [];
-        robot.brain.remove(JSON.stringify(key), value);
+        robot.brain.remove(JSON.stringify(key));
     }
 
     function respond(command, user, date, from, to, msg) {
